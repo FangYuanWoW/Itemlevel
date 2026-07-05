@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Title: Itemlevel
-## Notes: Average item level in the character panel and inspect frame.
-## Version: 1.1
+## Notes: Average item level in the character panel, inspect frame, and mouseover tooltips.
+## Version: 1.2
 ## DefaultState: enabled
 ## Author: ZpiX
 

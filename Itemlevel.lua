@@ -1,11 +1,11 @@
--- Itemlevel: average equipped item level on the character panel and the inspect frame.
+-- Itemlevel: average equipped item level on the character panel, the inspect
+-- frame, and player mouseover tooltips.
 -- Original by ZpiXDK (Warmane forums, Feb 12 2023). Fork maintained by FangYuanWoW.
 
 ---------------------------------------- Config ----------------------------------------
 
 -- Color tiers, highest first: { threshold, r, g, b }.
--- Tuned for Triumvirate progression: green = level-60 dungeon gear,
--- blue = MC/BWL/ZG gear, purple = AQ40/Naxx/Karazhan gear. White below.
+-- Purple 90+, blue 70+, green 55+, white below.
 local COLOR_TIERS = {
 	{ 90, 0.69, 0.28, 0.97 },
 	{ 70, 0.00, 0.50, 1.00 },
@@ -13,6 +13,8 @@ local COLOR_TIERS = {
 }
 
 local INSPECT_POLL_INTERVAL = 0.5
+local TOOLTIP_POLL_INTERVAL = 0.2
+local TOOLTIP_POLL_TIMEOUT = 3
 
 ---------------------------------------- Average ----------------------------------------
 
@@ -35,9 +37,9 @@ local function AverageItemLevel(unit)
 		end
 	end
 	if count == 0 then
-		return 0
+		return 0, 0
 	end
-	return total / count
+	return total / count, count
 end
 
 local function TierColor(avg)
@@ -116,6 +118,83 @@ local function HookInspectUI()
 	inspectValue = AttachDisplay(InspectPaperDollFrame)
 	InspectPaperDollFrame:HookScript("OnShow", OnInspectShow)
 end
+
+---------------------------------------- Mouseover tooltip ----------------------------------------
+
+-- Gear for other players is only readable after the server answers an inspect
+-- request, so hovering fires NotifyInspect and a short poll fills the line in
+-- as data (and the item cache) arrives. Last known value is kept per GUID for
+-- the session so repeat hovers show instantly.
+local ilvlCache = {}
+
+local function SetTooltipIlvl(tooltip, avg)
+	local text = string.format("ItemLevel: %.1f", avg)
+	local r, g, b = TierColor(avg)
+	for i = 2, tooltip:NumLines() do
+		local line = _G["GameTooltipTextLeft" .. i]
+		local existing = line and line:GetText()
+		if existing and string.find(existing, "^ItemLevel:") then
+			line:SetText(text)
+			line:SetTextColor(r, g, b)
+			return
+		end
+	end
+	tooltip:AddLine(text, r, g, b)
+	tooltip:Show()
+end
+
+local tipPoller = CreateFrame("Frame")
+tipPoller:Hide()
+local tipElapsed, tipWaited = 0, 0
+tipPoller:SetScript("OnUpdate", function(self, elapsed)
+	tipElapsed = tipElapsed + elapsed
+	tipWaited = tipWaited + elapsed
+	if tipElapsed < TOOLTIP_POLL_INTERVAL then
+		return
+	end
+	tipElapsed = 0
+	local _, unit = GameTooltip:GetUnit()
+	if not unit or not UnitIsPlayer(unit) or tipWaited > TOOLTIP_POLL_TIMEOUT then
+		self:Hide()
+		return
+	end
+	local avg, count = AverageItemLevel(unit)
+	if count > 0 then
+		ilvlCache[UnitGUID(unit)] = avg
+		SetTooltipIlvl(GameTooltip, avg)
+	end
+end)
+
+GameTooltip:HookScript("OnTooltipSetUnit", function(tooltip)
+	local _, unit = tooltip:GetUnit()
+	if not unit or not UnitIsPlayer(unit) then
+		return
+	end
+	local guid = UnitGUID(unit)
+
+	local avg, count = AverageItemLevel(unit)
+	if count > 0 then
+		ilvlCache[guid] = avg
+	end
+	if ilvlCache[guid] then
+		SetTooltipIlvl(tooltip, ilvlCache[guid])
+	end
+
+	-- Request fresh gear data. Skip for yourself (always readable) and while a
+	-- manual inspect window is open so its data is not clobbered.
+	if not UnitIsUnit(unit, "player")
+		and CanInspect(unit)
+		and CheckInteractDistance(unit, 1)
+		and not (InspectFrame and InspectFrame:IsShown()) then
+		NotifyInspect(unit)
+		tipElapsed, tipWaited = 0, 0
+		tipPoller:Show()
+	end
+end)
+
+GameTooltip:HookScript("OnHide", function()
+	tipPoller:Hide()
+end)
 
 ---------------------------------------- Events ----------------------------------------
 
