@@ -2,7 +2,7 @@
 
 Shows average equipped item level on the character panel, the inspect frame, and player mouseover tooltips (WotLK 3.3.5a).
 
-Open your character window (`C`) and your average item level appears in the top-left area of the paper doll. Inspect another player and their average shows in the same spot on the inspect window. Mouse over a player within inspect range and an `ItemLevel` line is added to their tooltip. The value is color-coded:
+Open your character window (`C`) and your average item level appears in the top-left area of the paper doll. Inspect another player and their average shows in the same spot on the inspect window. Mouse over a player within inspect range and `(ilvl N)` appears to the right of their name in the tooltip. The value is color-coded:
 
 - White below 55
 - Green at 55+
@@ -19,7 +19,7 @@ The thresholds are the `COLOR_TIERS` table at the top of `Itemlevel.lua` if you 
 
 ## Changes vs the original
 
-- v1.2: average item level on player mouseover tooltips (inspect range required, values cached per player for the session).
+- v1.2: average item level on player mouseover tooltips, shown as `(ilvl N)` right of the name (inspect range required, values cached per player for the session).
 - v1.1: inspect-frame support; fixed an error when items are not yet in the local item cache (common on fresh login and when inspecting); fixed NaN display with no equipped items; no more global namespace leaks; color thresholds retuned (green 55+, blue 70+, purple 90+; the original used 180/200/219).
 
 ## Credit

@@ -127,19 +127,17 @@ end
 -- the session so repeat hovers show instantly.
 local ilvlCache = {}
 
+-- Shown right-aligned on the name/title row via the line's right-side
+-- fontstring; tooltip:Show() re-runs layout so the width grows to fit.
 local function SetTooltipIlvl(tooltip, avg)
-	local text = string.format("ItemLevel: %.1f", avg)
-	local r, g, b = TierColor(avg)
-	for i = 2, tooltip:NumLines() do
-		local line = _G["GameTooltipTextLeft" .. i]
-		local existing = line and line:GetText()
-		if existing and string.find(existing, "^ItemLevel:") then
-			line:SetText(text)
-			line:SetTextColor(r, g, b)
-			return
-		end
+	local right = _G[tooltip:GetName() .. "TextRight1"]
+	if not right then
+		return
 	end
-	tooltip:AddLine(text, r, g, b)
+	right:SetFormattedText("(ilvl %.0f)", avg)
+	local r, g, b = TierColor(avg)
+	right:SetTextColor(r, g, b)
+	right:Show()
 	tooltip:Show()
 end
 
