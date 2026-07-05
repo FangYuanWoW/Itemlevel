@@ -1,15 +1,19 @@
 # Itemlevel
 
-Shows your average equipped item level on the character panel (WotLK 3.3.5a).
+Shows average equipped item level on the character panel and the inspect frame (WotLK 3.3.5a).
 
-Open your character window (`C`) and your average item level appears in the top-left area of the paper doll, color-coded by gear quality tier:
+Open your character window (`C`) and your average item level appears in the top-left area of the paper doll. Inspect another player and their average shows in the same spot on the inspect window. The value is color-coded for progressive-realm gear tiers:
 
-- White below 180
-- Green at 180+
-- Blue at 200+
-- Purple at 219+
+- White below 55
+- Green at 55+ (level-60 dungeon gear)
+- Blue at 70+ (MC/BWL/ZG gear)
+- Purple at 90+ (AQ40/Naxx/Karazhan gear)
 
-The value updates whenever you open the character panel or change a piece of equipment. Shirt and tabard are excluded from the average.
+The thresholds are the `COLOR_TIERS` table at the top of `Itemlevel.lua` if you want different ones. The value updates when you open the character panel, change equipment, or while an inspect window is open (inspected gear arrives from the server with a short delay, so the number fills in within a second). Shirt and tabard are excluded from the average.
+
+## Changes vs the original
+
+- v1.1: inspect-frame support; fixed an error when items are not yet in the local item cache (common on fresh login and when inspecting); fixed NaN display with no equipped items; no more global namespace leaks; color thresholds retuned for progressive realms (the original used WotLK endgame values 180/200/219).
 
 ## Credit
 
