@@ -134,7 +134,7 @@ local function SetTooltipIlvl(tooltip, avg)
 	if not right then
 		return
 	end
-	right:SetFormattedText("(ilvl %.0f)", avg)
+	right:SetFormattedText("ilvl %.0f", avg)
 	local r, g, b = TierColor(avg)
 	right:SetTextColor(r, g, b)
 	right:Show()
