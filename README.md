@@ -17,6 +17,8 @@ The thresholds are the `COLOR_TIERS` table at the top of `Itemlevel.lua` if you 
 
 ![Inspect frame](screenshots/inspect-frame.png)
 
+![Mouseover tooltip](screenshots/mouseover-tooltip.png)
+
 ## Changes vs the original
 
 - v1.2: average item level on player mouseover tooltips, shown as `(ilvl N)` right of the name (inspect range required, values cached per player for the session).
