@@ -1,0 +1,9 @@
+## Interface: 30300
+## Title: Itemlevel
+## Notes: Look up average item level in the character panel.
+## Version: 1.0
+## DefaultState: enabled
+## Author: ZpiX
+
+Itemlevel.lua
+
